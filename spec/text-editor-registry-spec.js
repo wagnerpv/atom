@@ -10,7 +10,8 @@ describe('TextEditorRegistry', function () {
 
   beforeEach(function () {
     registry = new TextEditorRegistry({
-      config: atom.config
+      config: atom.config,
+      grammarRegistry: atom.grammars
     })
 
     editor = new TextEditor({
@@ -65,7 +66,9 @@ describe('TextEditorRegistry', function () {
       await atom.packages.activatePackage('language-javascript')
       await atom.packages.activatePackage('language-c')
 
+      editor.getBuffer().setPath('test.js')
       registry.maintainGrammar(editor)
+
       expect(editor.getGrammar().name).toBe('JavaScript')
 
       editor.getBuffer().setPath('test.c')
@@ -73,7 +76,9 @@ describe('TextEditorRegistry', function () {
     })
 
     it('updates the editor\'s grammar when a more appropriate grammar is added for its path', async function () {
-      expect(editor.getGrammar().name).toBe('Null Grammar')
+      expect(editor.getGrammar()).toBe(null)
+
+      editor.getBuffer().setPath('test.js')
       registry.maintainGrammar(editor)
       await atom.packages.activatePackage('language-javascript')
       expect(editor.getGrammar().name).toBe('JavaScript')
